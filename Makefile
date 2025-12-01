@@ -7,6 +7,7 @@ FLAGS = -O2
 YEAR = 2025
 
 define DAY_TEMPLATE
+#!/usr/bin/env runghc
 module Main where
 
 main = interact (unlines . sequence [part1] . lines)

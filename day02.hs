@@ -4,14 +4,20 @@ module Main where
 
 import Data.List.Split (splitOn)
 
-main = interact (unlines . sequence [part1] . concat . concatMap parse . lines)
+main = interact (unlines . sequence [part1, part2] . concat . concatMap parse . lines)
 
-part1 = ("Part 1: " ++) . show . sum . filter (twice . show)
+part1 = ("Part 1: " ++) . show . sum . filter (elem 2 . repeats . show)
+part2 = ("Part 2: " ++) . show . sum . filter (not . null . repeats . show)
 
-twice :: (Eq a) => [a] -> Bool
-twice xs = case length xs of
-  n | even n -> and (zipWith (==) xs (drop (length xs `div` 2) xs))
-  _ -> False
+repeats :: (Eq a) => [a] -> [Int]
+repeats xs = go 1
+ where
+  n = length xs
+  go ptr
+    | ptr == n = []
+    | n `mod` ptr /= 0 = go (ptr + 1)
+    | concat (replicate (n `div` ptr) (take ptr xs)) == xs = n `div` ptr : go (ptr + 1)
+    | otherwise = go (ptr + 1)
 
 parse = map (range . splitOn "-") . splitOn ","
 

@@ -42,9 +42,13 @@ build/%.example.output: % %.example
 %:: %.hs
 	@ghc -v0 -outputdir build $(FLAGS) -o $@ $<
 
-.PHONY: install clean watch
+.PHONY: install clean watch bench
 install:
 	@mkdir -p build
 	@cabal v2-install --package-env=build --package-db=clear --package-db=global --lib "$(PACKAGES)"
 clean:
 	@rm -rf build
+
+bench:
+	$(foreach input,$(wildcard *.input), \
+		hyperfine --warmup 3 "./$(basename $(input))" --input "$(input)";)

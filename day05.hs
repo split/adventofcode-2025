@@ -15,7 +15,7 @@ part2 = ("Part 2: " ++) . show . count . fst
 count = snd . foldl go (0, 0) . sortOn fst
   where
     go (ptr, acc) (l, u)
-      | u > ptr = (u, acc + u - ((ptr + 1) `max` l) + 1)
+      | u > ptr = (u, acc + u - (ptr + 1) `max` l + 1)
       | otherwise = (ptr, acc)
 
 inRanges rr v = any (v `inRange`) rr

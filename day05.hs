@@ -10,18 +10,13 @@ main = interact (unlines . sequence [part1, part2] . parse)
 
 part1 = ("Part 1: " ++) . show . length . filter id . uncurry (map . inRanges)
 
-part2 = ("Part 2: " ++) . show . sum . map count . mergeAll . fst
+part2 = ("Part 2: " ++) . show . count . fst
 
-count (l, r) = r - l + 1
-
-mergeAll = foldr step [] . sortOn fst
+count = snd . foldl go (0, 0) . sortOn fst
   where
-    merge (l1, u1) (l2, u2) = (l1 `min` l2, u1 `max` u2)
-    overlaps (l1, u1) (l2, u2) = not (u1 < l2 || u2 < l1)
-    step r [] = [r]
-    step r acc@(x : xs)
-      | r `overlaps` x = step (merge r x) xs
-      | otherwise = r : acc
+    go (ptr, acc) (l, u)
+      | u > ptr = (u, acc + u - ((ptr + 1) `max` l) + 1)
+      | otherwise = (ptr, acc)
 
 inRanges rr v = any (v `inRange`) rr
 

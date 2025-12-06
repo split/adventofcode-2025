@@ -1,15 +1,22 @@
 #!/usr/bin/env runghc
 module Main where
 
-import Data.List (transpose)
+import Data.Char (isDigit, isSpace)
+import Data.List (find, transpose)
+import Data.List.Split (splitWhen)
+import Data.Maybe (mapMaybe)
+import Text.Read (readMaybe)
 
-main = interact (unlines . sequence [part1] . parse)
+main = interact (unlines . sequence [part1, part2] . columns . lines)
 
-part1 = ("Part 1: " ++) . show . sum . map (uncurry foldr1)
+part1, part2 :: [[String]] -> String
+part1 = ("Part 1: " ++) . show . sum . map (calc . transpose)
+part2 = ("Part 2: " ++) . show . sum . map calc
 
-parse :: String -> [(Int -> Int -> Int, [Int])]
-parse = map (op . reverse) . transpose . map words . lines
+calc xs = case find (`elem` "+*") (unlines xs) of
+  Just '*' -> product digits
+  Just '+' -> sum digits
   where
-    op ("+" : xs) = ((+), map read xs)
-    op ("*" : xs) = ((*), map read xs)
-    op _ = error "Invalid input"
+    digits = mapMaybe (readMaybe . filter isDigit) xs
+
+columns = splitWhen (all isSpace) . transpose

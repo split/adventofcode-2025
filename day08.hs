@@ -13,26 +13,26 @@ main = interact (unlines . sequence [part1, part2] . parse)
 part1 :: [Point] -> String
 part1 = ("Part 1: " ++) . show . score . go
   where
-    go xs = foldl (flip joinCircuits) (circuits xs) (takeN (closest xs))
-    takeN xs = take (if length xs > 1000 then 1000 else 10) xs
+    go xs = scanCircuits xs !! if length xs > 100 then 1000 else 10
     score = product . take 3 . sortOn negate . map S.size
 
 part2 :: [Point] -> String
 part2 = ("Part 2: " ++) . show . fromMaybe 0 . msum . map match . go
   where
-    go xs = (zip <*> drop 1 . scanl (flip joinCircuits) (circuits xs)) (closest xs)
-    match (p@((x, _, _), (x', _, _)), circuits) = case circuits of
-      [_] -> Just (x * x')
+    go xs = zip (closest xs) (drop 1 $ scanCircuits xs)
+    match state = case state of
+      (p@((x, _, _), (x', _, _)), [_]) -> Just (x * x')
       _ -> Nothing
 
+scanCircuits xs = scanl (flip joinCircuits) (circuits xs) (closest xs)
+
 joinCircuits :: (Point, Point) -> [S.Set Point] -> [S.Set Point]
-joinCircuits (q, p) = join S.empty
+joinCircuits (q, p) = join (S.fromList [q, p])
   where
-    conn = S.fromList [p, q]
     join acc [] = [acc]
     join acc (cir : xs)
-      | null (conn `S.intersection` cir) = cir : join acc xs
-      | otherwise = join (cir <> acc) xs
+      | null (acc `S.intersection` cir) = cir : join acc xs
+      | otherwise = join (acc <> cir) xs
 
 circuits = map S.singleton
 

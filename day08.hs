@@ -17,11 +17,11 @@ part1 = ("Part 1: " ++) . show . score . go
     score = product . take 3 . sortOn negate . map S.size
 
 part2 :: [Point] -> String
-part2 = ("Part 2: " ++) . show . fromMaybe 0 . msum . map match . go
+part2 = ("Part 2: " ++) . show . fromMaybe 0 . msum . go
   where
-    go xs = zip (closest xs) (drop 1 $ scanCircuits xs)
-    match state = case state of
-      (p@((x, _, _), (x', _, _)), [_]) -> Just (x * x')
+    go xs = zipWith match (closest xs) (drop 1 $ scanCircuits xs)
+    match ((x, _, _), (x', _, _)) state = case state of
+      [_] -> Just (x * x')
       _ -> Nothing
 
 scanCircuits xs = scanl (flip joinCircuits) (circuits xs) (closest xs)

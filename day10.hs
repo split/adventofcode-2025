@@ -10,7 +10,7 @@ import Data.Sequence qualified as Seq
 import Data.Set qualified as S
 
 data Machine = Machine
-  {presses :: Int, lights :: [Int], buttons :: [[Int]]}
+  {presses :: Int, lights :: [Int], buttons :: Seq [Int]}
   deriving (Show, Eq, Ord)
 
 main = interact (unlines . sequence [part1] . parse)
@@ -19,14 +19,14 @@ part1 :: [Machine] -> String
 part1 = ("Part 1: " ++) . show . sum . map (presses . runMachine)
 
 runMachine :: Machine -> Machine
-runMachine im@Machine {buttons} = press ((im,) <$> Seq.fromList buttons) S.empty
+runMachine im@Machine {buttons} = press ((im,) <$> buttons) S.empty
   where
     press ((m, b) :<| next) seen
       | all matches (lights m) = m
       | (b, lights m) `S.member` seen = press next seen
       | otherwise =
           press
-            (next >< Seq.fromList ((pressButton m b,) <$> buttons))
+            (next >< ((pressButton m b,) <$> buttons))
             ((b, lights m) `S.insert` seen)
 
 pressButton m button = m {presses = presses m + 1, lights = zipWith (toggle button) [0 ..] (lights m)}
@@ -40,7 +40,7 @@ matches v = ((v `xor` (v `shiftR` 1)) .&. 1) == 0
 
 parse = map (uncurry (Machine 0)) . mapMaybe go . lines . concatMap fmt
   where
-    go = (map light `bimap` (init . map read) <$>) . uncons . words
+    go = (map light `bimap` (Seq.fromList . init . map read) <$>) . uncons . words
     light v = case v of
       '#' -> 2
       '.' -> 0

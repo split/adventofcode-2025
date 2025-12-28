@@ -1,0 +1,6 @@
+cradle:
+  direct:
+    arguments: ["-package split", "-package containers"]
+dependencies:
+  - split
+  - containers

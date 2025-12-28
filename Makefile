@@ -5,7 +5,6 @@ OUTPUT = $(INPUT:%.input=build/%.output)
 ALL = $(SRC:%.hs=%) $(SRC:%.hs=%.input) $(OUTPUT) $(EXAMPLE:%.example=build/%.example.output)
 FLAGS = -O2
 YEAR = 2025
-PACKAGES = "split containers"
 
 define DAY_TEMPLATE
 #!/usr/bin/env runghc
@@ -40,12 +39,9 @@ build/%.example.output: % %.example
 	@grep Part $*.example | diff -u - $@ && echo $* example is valid
 
 %:: %.hs
-	@ghc -v0 -outputdir build $(FLAGS) -o $@ $<
+	@ghc -v0 -package containers -package split -outputdir build $(FLAGS) -o $@ $<
 
-.PHONY: install clean watch bench
-install:
-	@mkdir -p build
-	@cabal v2-install --package-env=build --package-db=clear --package-db=global --lib "$(PACKAGES)"
+.PHONY: clean watch bench
 clean:
 	@rm -rf build
 
